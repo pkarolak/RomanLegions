@@ -1,30 +1,71 @@
 #include "master.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+#include <errno.h>
 
-int main()
-{
+int main(int argc, char* argv[]) {
+
+	int c;
+    char *lopt = NULL, *ropt = NULL;
+    while ( (c = getopt(argc, argv, "l:r:")) != -1) {
+        switch (c) {
+	        case 'l':
+	            lopt = optarg;
+	            break;
+	        case 'r':
+	            ropt = optarg;
+	            break;
+	        case '?':
+	            break;
+	        default:
+	            printf ("?? getopt returned character code 0%o ??\n", c);
+        }
+    }
+    if (optind < argc) {
+        printf ("non-option ARGV-elements: ");
+        while (optind < argc)
+            printf ("%s ", argv[optind++]);
+        printf ("\n");
+    }
+
+    int legion_num = lopt ? atoi(lopt) : LEGION_NUM;
+    int route_num = ropt ? atoi(ropt) : ROUTE_NUM;
+
+    printf("legion_num = %d\n", legion_num);
+    printf("route_num = %d\n", route_num);
+
 	int mytid;
-	int tids[SLAVENUM];		/* slave task ids */
-	char slave_name[NAMESIZE];
+	int tids[legion_num];	
 	int nproc, i, who;
 
 	mytid = pvm_mytid();
 
-	nproc=pvm_spawn(SLAVENAME, NULL, PvmTaskDefault, "", SLAVENUM, tids);
+	nproc = pvm_spawn(SLAVENAME, NULL, PvmTaskDefault, "", legion_num, tids);
 
-	for( i=0 ; i<nproc ; i++ )
-	{
-		pvm_initsend(PvmDataDefault);
-		pvm_pkint(&mytid, 1, 1);
-		pvm_pkint(&i, 1, 1);
-		pvm_send(tids[i], MSG_MSTR);
+	for( i = 0 ; i < nproc ; ++i ) {
+		printf("%d\n", tids[i]);
 	}
 
-	for( i=0 ; i<nproc ; i++ )
-	{
+	for( i = 0 ; i < nproc ; ++i ) {
+		pvm_initsend(PvmDataDefault);
+		pvm_pkint(&mytid, 1, 1); 		// master id
+		pvm_pkint(&i, 1, 1);			// index
+		pvm_pkint(&nproc, 1, 1);		// nproc
+		pvm_pkint(&legion_num, 1, 1);	// number of legions
+		pvm_pkint(&route_num, 1, 1);	// number of routes
+		pvm_pkint(tids, 1, nproc);		// array of tids
+		pvm_send(tids[i], MSG_MSTR);	// receiver tid
+	}
+
+	int num;
+	for( i = 0 ; i < nproc ; ++i ) {
 		pvm_recv( -1, MSG_SLV );
 		pvm_upkint(&who, 1, 1 );
-		pvm_upkstr(slave_name );
-		printf("%d: %s\n",who, slave_name);
+		pvm_upkint(&num, 1, 1 );
+		printf("%d: %d\n",who, num);
 	}
 
 	pvm_exit();

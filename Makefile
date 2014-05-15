@@ -5,7 +5,7 @@ PVMINC=$(PVM_ROOT)/include
 PVMLIB=$(PVM_ROOT)/lib/$(PVM_ARCH) 
 
 LIBS=-L$(PVMLIB)
-FLAGS=-Wall -lpvm3 -lgpvm3 -I$(PVMINC)
+FLAGS=-Wall -lpvm3 -lgpvm3 -I$(PVMINC) -std=gnu99
 
 CFLAGS=$(FLAGS)
 LDFLAGS=$(FLAGS) $(LIBS)

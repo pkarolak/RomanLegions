@@ -1,32 +1,27 @@
 #include "slave.h"
 
-int main()
-{
+int main() {
 	int mytid;
-	int tids[SLAVENUM];		/* slave task ids */
-	char slave_name[NAMESIZE];
-	int nproc, i, who;
+
+	int masterId, myNum, nproc, legion_num, route_num;
 
 	mytid = pvm_mytid();
 
-	nproc=pvm_spawn(SLAVENAME, NULL, PvmTaskDefault, "", SLAVENUM, tids);
+	pvm_recv(-1, MSG_MSTR);
+	pvm_upkint(&masterId, 1, 1);					// master id
+	pvm_upkint(&myNum, 1, 1);						// index
+	pvm_upkint(&nproc, 1, 1);						// number of processes
+	pvm_upkint(&legion_num, 1, 1);					// number of legions
+	pvm_upkint(&route_num, 1, 1);					// number of routes
+	int* tids = calloc(nproc, nproc*sizeof(int));
+	pvm_upkint(tids, 1, nproc);						// tids
 
-	for( i=0 ; i<nproc ; i++ )
-	{
-		pvm_initsend(PvmDataDefault);
-		pvm_pkint(&mytid, 1, 1);
-		pvm_pkint(&i, 1, 1);
-		pvm_send(tids[i], MSG_MSTR);
-	}
+	pvm_initsend(PvmDataDefault);
+	pvm_pkint(&myNum, 1, 1 );
+	pvm_pkint(&mytid, 1, 1);
+	pvm_send(masterId, MSG_SLV);
 
-	for( i=0 ; i<nproc ; i++ )
-	{
-		pvm_recv( -1, MSG_SLV );
-		pvm_upkint(&who, 1, 1 );
-		pvm_upkstr(slave_name );
-		printf("%d: %s\n",who, slave_name);
-	}
-
+	free(tids);
 	pvm_exit();
 	return 0;
 }
