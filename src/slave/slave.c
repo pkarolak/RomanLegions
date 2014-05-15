@@ -1,5 +1,7 @@
 #include "slave.h"
 
+char debug_message[1024];
+
 int main() {
 	int mytid;
 
@@ -20,6 +22,8 @@ int main() {
 	pvm_pkint(&myNum, 1, 1 );
 	pvm_pkint(&mytid, 1, 1);
 	pvm_send(masterId, MSG_SLV);
+
+	d_send(masterId, "Hello my master from %d", myNum);
 
 	free(tids);
 	pvm_exit();

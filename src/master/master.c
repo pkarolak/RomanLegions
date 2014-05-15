@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <errno.h>
 
+char debug_message[1024];
+
 int main(int argc, char* argv[]) {
 
 	int c;
@@ -68,6 +70,12 @@ int main(int argc, char* argv[]) {
 		printf("%d: %d\n",who, num);
 	}
 
+	char str[1024];
+	for( i = 0 ; i < nproc ; ++i ) {
+		pvm_recv( -1, MSG_DEBUG );
+		pvm_upkstr(str);
+		printf("%s\n", str);
+	}
 	pvm_exit();
 	return 0;
 }
