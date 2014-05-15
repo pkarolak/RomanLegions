@@ -10,8 +10,8 @@ FLAGS=-Wall -lpvm3 -lgpvm3 -I$(PVMINC) -std=gnu99
 CFLAGS=$(FLAGS)
 LDFLAGS=$(FLAGS) $(LIBS)
 
-TARGET_MASTER=bin/master
-TARGET_SLAVE=bin/slave
+TARGET_MASTER=master
+TARGET_SLAVE=slave
 
 SRC_MASTER=master
 SRC_SLAVE=slave
