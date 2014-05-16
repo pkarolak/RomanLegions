@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	char str[1024];
-	for( i = 0 ; i < nproc ; ++i ) {
+	while(1) {
 		pvm_recv( -1, MSG_DEBUG );
 		pvm_upkstr(str);
 		printf("%s\n", str);

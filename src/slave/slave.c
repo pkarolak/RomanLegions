@@ -25,6 +25,11 @@ int main() {
 
 	d_send(masterId, "Hello my master! I'm Legion with id: %d, %d, I know we have %d legions and %d routes", myNum, tids[myNum], legion_num, route_num);
 
+	/*
+		TODO:
+
+	*/
+		
 	free(tids);
 	pvm_exit();
 	return 0;
