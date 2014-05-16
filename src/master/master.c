@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 		pvm_pkint(&nproc, 1, 1);		// nproc
 		pvm_pkint(&legion_num, 1, 1);	// number of legions
 		pvm_pkint(&route_num, 1, 1);	// number of routes
-		pvm_pkint(tids, 1, nproc);		// array of tids
+		pvm_pkint(tids, nproc, 1);		// array of tids
 		pvm_send(tids[i], MSG_MSTR);	// receiver tid
 	}
 
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
 		pvm_upkstr(str);
 		printf("%s\n", str);
 	}
+
 	pvm_exit();
 	return 0;
 }
