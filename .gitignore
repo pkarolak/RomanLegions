@@ -25,6 +25,7 @@
 ./slave
 
 # Folders
-/bin
-/obj
-/test
+bin/
+obj/
+test/
+src/slave/test*
