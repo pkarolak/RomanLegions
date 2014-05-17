@@ -1,3 +1,4 @@
+//<>< P.K.
 #include "master.h"
 #include <string.h>
 #include <stdio.h>
@@ -97,7 +98,7 @@ int main(int argc, char* argv[]) {
 	
 	char str[1024];
 	for( i = 0 ; i < nproc ; ++i ) {
-		pvm_recv( -1, MSG_CONF );
+		pvm_recv( -1, MSG_DEBUG );
 		pvm_upkstr(str);
 		printf("%s\n", str);
 	}
@@ -105,7 +106,7 @@ int main(int argc, char* argv[]) {
 
 	msg* core = calloc(1, sizeof(msg));
 	for( i = 0 ; i < nproc ; ++i ) {
-		pvm_recv( -1, MSG_DEBUG );
+		pvm_recv( -1, MSG_CONF );
 		pvm_upkbyte((char*)core, sizeof(msg), 1 );
 		printf("sender: %d, card: %d, time: %d, res: %d\n", core->sender_id, core->legion_card, core->timestamp, core->resource_id);
 	}

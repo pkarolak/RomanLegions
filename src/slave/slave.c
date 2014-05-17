@@ -1,7 +1,10 @@
+//<>< P.K.
 #include <stdlib.h>
 #include <time.h>
 #include "slave.h"
 #include "queue.h"
+#include "message.h"
+#include "vtime.h"
 
 char debug_message[1024];
 
@@ -47,7 +50,7 @@ int main() {
 	}
 	d_send(master_id, "sender: %d, card: %d, time: %d, res: %d\n", core.sender_id, core.legion_card, core.timestamp, core.resource_id);
 	
-	msg_send(master_id, MSG_DEBUG, core );
+	msg_send(master_id, MSG_CONF, core );
 	free(tids);
 	pvm_exit();
 	return 0;
