@@ -29,3 +29,5 @@ bin/
 obj/
 test/
 src/slave/test*
+./master
+./slave
