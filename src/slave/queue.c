@@ -34,7 +34,6 @@ queue* Queue(int in_owner_id) {
 	q->owner_node = NULL;
 	q->first = NULL;
 	q->last = NULL;
-	printf("Queue created\n");
 	return q;
 }
 
@@ -79,42 +78,56 @@ int QueuePushBeforeOwner(queue* q, node* n) {
 }
 
 int QueueDeleteIndex(queue* q, int legion_id) {
-	node* following = q->first;
-	while( (following->legion->id != legion_id) && (following->next != NULL) ) {
-		following = following->next;
+	node* n = q->first;
+	while( (n->legion->id != legion_id) && (n->next != NULL) ) {
+		n = n->next;
 	}
-	if ( following == q->last ) {
-		following->previous->next = NULL;
-		q->last = following->previous;
+	if ( n->legion->id != legion_id ) {
+		return 1;
 	}
-	else if ( following == q->first ){
-		following->next->previous = NULL;
-		q->first = following->next;
-	}
-	else {
-		following->next->previous = following->previous;
-		following->previous->next = following->next;
-	}
-	if ( following->legion->id == q->owner_id) {
+	if ( n->legion->id == q->owner_id) {
 		q->owner_node = NULL;
 	}
-	FreeNode(following);
+	if ( (n->previous != NULL) && (n->next != NULL) ) {
+		n->previous->next = n->next;
+		n->next->previous = n->previous;
+	}
+	if ( (n->previous != NULL) && (n->next == NULL) ) {
+		n->previous->next = NULL;
+		q->last = n->previous;
+	}
+	if ( (n->previous == NULL) && (n->next != NULL) ) {
+		n->next->previous = NULL;
+		q->first = n->next;
+	}
+	if ( (n->previous == NULL) && (n->next == NULL) ) {
+		q->first = NULL;
+		q->last = NULL;
+	}
+	FreeNode(n);
 	return 0;
 }
 
 
 int QueueDeleteNode(queue* q, node* n) {
-	if ( n == q->last ) {
+	if ( n->legion->id == q->owner_id) {
+		q->owner_node = NULL;
+	}
+	if ( (n->previous != NULL) && (n->next != NULL) ) {
+		n->previous->next = n->next;
+		n->next->previous = n->previous;
+	}
+	if ( (n->previous != NULL) && (n->next == NULL) ) {
 		n->previous->next = NULL;
 		q->last = n->previous;
 	}
-	else if ( n == q->first ){
+	if ( (n->previous == NULL) && (n->next != NULL) ) {
 		n->next->previous = NULL;
 		q->first = n->next;
 	}
-	else {
-		n->next->previous = n->previous;
-		n->previous->next = n->next;
+	if ( (n->previous == NULL) && (n->next == NULL) ) {
+		q->first = NULL;
+		q->last = NULL;
 	}
 	FreeNode(n);
 	return 0;
@@ -125,9 +138,11 @@ void PrintNode(node* n) {
 }
 
 void PrintQueue(queue* q) {
-	node* following = q->first;
-	while( following != NULL ) {
-		PrintNode(following);
-		following = following->next;
+	node* n = q->first;
+	printf("\n");
+	while( n != NULL ) {
+		PrintNode(n);
+		n = n->next;
 	}
+	printf("\n");
 }
