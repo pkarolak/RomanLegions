@@ -79,7 +79,7 @@ int QueuePushBeforeOwner(queue* q, node* n) {
 
 int QueueDeleteIndex(queue* q, int legion_id) {
 	node* n = q->first;
-	while( (n->legion->id != legion_id) && (n->next != NULL) ) {
+	while( (n->next != NULL) && (n->legion->id != legion_id) ) {
 		n = n->next;
 	}
 	if ( n->legion->id != legion_id ) {
@@ -145,4 +145,14 @@ void PrintQueue(queue* q) {
 		n = n->next;
 	}
 	printf("\n");
+}
+
+int PredecessorsCard(queue* q) {
+	node* n = q->first;
+	int sum = 0;
+	while( (n != NULL) && (n->legion->id != q->owner_id) ) {
+		sum += n->legion->card;
+		n = n->next;
+	}
+	return sum;
 }

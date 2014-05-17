@@ -31,5 +31,6 @@ int QueueDeleteIndex(queue* q, int legion_id);
 int QueueDeleteNode(queue* q, node* n);
 void PrintNode(node* n);
 void PrintQueue(queue* q);
+int PredecessorsCard(queue* q);
 
 #endif
