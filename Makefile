@@ -14,7 +14,7 @@ TARGET_MASTER=master
 TARGET_SLAVE=slave
 
 SRC_MASTER=master
-SRC_SLAVE=slave queue message vtime
+SRC_SLAVE=queue message vtime slave
 
 SRCS_MASTER=$(addsuffix .c, $(SRC_MASTER)) 
 OBJS_MASTER=$(addprefix obj/master/, $(addsuffix .o, $(SRCS_MASTER)))

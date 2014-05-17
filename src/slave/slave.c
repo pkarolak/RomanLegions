@@ -39,7 +39,7 @@ int main() {
 
 	*/
 	srand(time(NULL));
-	msg core;
+	message core;
 	core.sender_id = my_num;
 	core.legion_card = my_card;
 	core.timestamp = mytid;
