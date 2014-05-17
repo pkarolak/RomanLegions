@@ -1,3 +1,6 @@
+#ifndef _SLAVE_H_
+#define _SLAVE_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pvm3.h>
@@ -18,3 +21,5 @@ typedef struct {
 	int timestamp;
 	int resource_id;
 } msg;
+
+#endif

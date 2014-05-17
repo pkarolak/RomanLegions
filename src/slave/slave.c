@@ -1,6 +1,7 @@
-#include "slave.h"
-#include <time.h>
 #include <stdlib.h>
+#include <time.h>
+#include "slave.h"
+#include "queue.h"
 
 char debug_message[1024];
 
