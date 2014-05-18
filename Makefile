@@ -29,7 +29,10 @@ OBJS_SLAVE=$(addprefix obj/slave/, $(addsuffix .o, $(SRCS_SLAVE)))
 
 
 
-all:  $(TARGET_SLAVE) $(TARGET_MASTER)
+all:  dirs $(TARGET_SLAVE) $(TARGET_MASTER)
+
+dirs:
+	mkdir -p ./obj/master ./obj/slave ./obj/common
 
 obj/master/%.c.o: src/master/%.c src/master/%.h
 	$(CC) -c $< $(CFLAGS) -o $@
@@ -47,5 +50,6 @@ $(TARGET_SLAVE): $(OBJS_SLAVE) $(OBJS_COMMON)
 	$(LD) $(OBJS_SLAVE) $(OBJS_COMMON) $(LDFLAGS) -o $(TARGET_SLAVE)
 
 clean:
-	rm -f $(TARGET_MASTER) $(TARGET_SLAVE) obj/master/* obj/slave/* obj/common/*
+	rm -f $(TARGET_MASTER) $(TARGET_SLAVE)
+	rm -rf obj
 
