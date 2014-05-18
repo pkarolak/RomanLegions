@@ -25,7 +25,7 @@ int main() {
 	int* tids = calloc(nproc, sizeof(int));
 	pvm_upkint(tids, nproc, 1);						// tids
 
-	vtimer* my_timer = Vtimer(legion_num, mytid);
+	vtimer* my_timer = Vtimer(legion_num, my_num);
 	//IncrementVtimer(my_timer);
 	
 	pvm_initsend(PvmDataDefault);
@@ -41,8 +41,9 @@ int main() {
 		resource_id += rand()%route_num;
 		resource_id %= route_num;
 	}
-	message* core = Message(mytid, my_card, my_timer, 1);
+	message* core = Message(mytid, my_card, *my_timer, resource_id);
 	SendMessage(master_id, core, COMMUNICATE);
+	FreeVtimer(my_timer);
 	free(tids);
 	pvm_exit();
 	return 0;

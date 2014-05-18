@@ -95,18 +95,15 @@ int main(int argc, char* argv[]) {
 	}
 
 	printf("\ncore rvc\n");
-	
 
-	message* core = calloc(1, sizeof(message));
 	for( i = 0 ; i < nproc ; ++i ) {
+		message* core = calloc(1, sizeof(message));
 		RecieveMessage(core, COMMUNICATE);
+		PrintMessage(core);
+		//printf("Sender: %d, Card: %d, Resource: %d\n", core->sender_id, core->legion_card, core->resource_id);
+		//printf("%d\n", core->timer);
+		free(core);
 	}
-
-	printf("now gonna sleep!\n");
-	sleep(4);
-	
-	printf("awake!\n");
-	free(core);
 	pvm_exit();
 	return 0;
 }

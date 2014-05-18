@@ -7,13 +7,13 @@ vtimer* Vtimer(int in_size, int in_owner) {
 	vtimer* v = calloc(1, sizeof(vtimer));
 	v->size = in_size;
 	v->owner = in_owner;
-	int* t = calloc(in_size, sizeof(int));
-	v->timer = t;
+	for(int i = 0 ; i < MAX_TIMER_SIZE ; ++i) {
+		v->timer[i] = 0;
+	}
 	return v;
 }
 
 int FreeVtimer(vtimer* v) {
-	free(v->timer);
 	free(v);
 	return 0;
 }
@@ -75,7 +75,7 @@ int max(int a, int b) {
 	return (a > b) ? a : b;
 }
 
-void PrintTimer(vtimer* v) {
+void PrintVtimer(vtimer* v) {
 	printf("\nTimer of: %d:\n", v->owner);
 	printf("[ ");
 	for(int i = 0 ; i < v->size; ++i) {

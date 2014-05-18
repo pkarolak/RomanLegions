@@ -2,7 +2,7 @@
 #include "message.h"
 
 
-message* Message(int in_sender, int in_card, vtimer* in_timer, int in_res) {
+message* Message(int in_sender, int in_card, vtimer in_timer, int in_res) {
 	message* m = calloc(1, sizeof(message));
 	m->sender_id = in_sender;
 	m->legion_card = in_card;
@@ -34,4 +34,9 @@ int NonBlockingRecieveMessage(message* m, msg_type in_type) {
 		pvm_upkbyte((char*)m, sizeof(message), 1);
 	}
 	return stat;
+}
+
+void PrintMessage(message* m) {
+	printf("Sender: %d, Card: %d, Resource: %d\n", m->sender_id, m->legion_card, m->resource_id);
+	PrintVtimer(&(m->timer));
 }
