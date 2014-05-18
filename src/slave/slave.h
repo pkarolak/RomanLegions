@@ -5,11 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pvm3.h>
-
-#define MSG_MSTR 1
-#define MSG_SLV  2
-#define MSG_DEBUG  3
-#define MSG_CONF 4
+#include "../common/message.h"
+#include "../common/vtime.h"
 
 
 #endif

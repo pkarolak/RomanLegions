@@ -82,36 +82,31 @@ int main(int argc, char* argv[]) {
 		pvm_pkint(&route_num, 1, 1);	// number of routes
 		pvm_pkint(route_capacity, route_num, 1);// routes capacity
 		pvm_pkint(tids, nproc, 1);		// array of tids
-		pvm_send(tids[i], MSG_MSTR);	// receiver tid
+		pvm_send(tids[i], MASTER);	// receiver tid
 	}
 
 	int num;
 	for( i = 0 ; i < nproc ; ++i ) {
-		printf("\nrcv: %d\n", i);
-		pvm_recv( -1, MSG_SLV );
+		pvm_recv( -1, SLAVE );
 		pvm_upkint(&who, 1, 1 );
 		pvm_upkint(&num, 1, 1 );
+		printf("\nrcv: %d\n", i);
 		printf("%d: %d\n",who, num);
 	}
 
 	printf("\ncore rvc\n");
 	
-	char str[1024];
+
+	message* core = calloc(1, sizeof(message));
 	for( i = 0 ; i < nproc ; ++i ) {
-		pvm_recv( -1, MSG_DEBUG );
-		pvm_upkstr(str);
-		printf("%s\n", str);
+		RecieveMessage(core, COMMUNICATE);
 	}
 
-
-	msg* core = calloc(1, sizeof(msg));
-	for( i = 0 ; i < nproc ; ++i ) {
-		pvm_recv( -1, MSG_CONF );
-		pvm_upkbyte((char*)core, sizeof(msg), 1 );
-		printf("sender: %d, card: %d, time: %d, res: %d\n", core->sender_id, core->legion_card, core->timestamp, core->resource_id);
-	}
-	free(core);
+	printf("now gonna sleep!\n");
+	sleep(4);
 	
+	printf("awake!\n");
+	free(core);
 	pvm_exit();
 	return 0;
 }

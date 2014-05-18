@@ -3,8 +3,7 @@
 #include <time.h>
 #include "slave.h"
 #include "queue.h"
-#include "message.h"
-#include "vtime.h"
+
 
 char debug_message[1024];
 
@@ -14,8 +13,7 @@ int main() {
 	int master_id, my_num, nproc, legion_num, route_num, my_card;
 
 	mytid = pvm_mytid();
-
-	pvm_recv(-1, MSG_MSTR);
+	pvm_recv(-1, MASTER);
 	pvm_upkint(&master_id, 1, 1);					// master id
 	pvm_upkint(&my_num, 1, 1);						// index
 	pvm_upkint(&nproc, 1, 1);						// number of processes
@@ -26,31 +24,25 @@ int main() {
 	pvm_upkint(routes_capacity, route_num, 1);
 	int* tids = calloc(nproc, sizeof(int));
 	pvm_upkint(tids, nproc, 1);						// tids
+
+	vtimer* my_timer = Vtimer(legion_num, mytid);
+	//IncrementVtimer(my_timer);
 	
 	pvm_initsend(PvmDataDefault);
 	pvm_pkint(&my_num, 1, 1 );
 	pvm_pkint(&mytid, 1, 1);
-	pvm_send(master_id, MSG_SLV);
+	pvm_send(master_id, SLAVE);
 
 	//d_send(masterId, "Hello my master! I'm Legion with id: %d, %d, I know we have %d legions and %d routes", my_num, tids[myNum], legion_num, route_num);
 
-	/*
-		TODO:
-
-	*/
 	srand(time(NULL));
-	message core;
-	core.sender_id = my_num;
-	core.legion_card = my_card;
-	core.timestamp = mytid;
-	core.resource_id = rand()%route_num;
+	int resource_id = rand()%route_num;
 	for( int i = 0 ; i < my_num ; ++i ) {
-		core.resource_id += rand()%route_num;
-		core.resource_id %= route_num;
+		resource_id += rand()%route_num;
+		resource_id %= route_num;
 	}
-	d_send(master_id, "sender: %d, card: %d, time: %d, res: %d\n", core.sender_id, core.legion_card, core.timestamp, core.resource_id);
-	
-	msg_send(master_id, MSG_CONF, core );
+	message* core = Message(mytid, my_card, my_timer, 1);
+	SendMessage(master_id, core, COMMUNICATE);
 	free(tids);
 	pvm_exit();
 	return 0;
