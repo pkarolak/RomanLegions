@@ -88,9 +88,10 @@ int max(int a, int b) {
 	return (a > b) ? a : b;
 }
 
-/*
+
 void PrintVtimer(vtimer* v) {
-	printf("\nTimer of: %d:\n", v->owner);
+	printf("\nTimer of: %d: %d\n", v->owner, v->timer);
+	/*
 	printf("[ ");
 	for(int i = 0 ; i < v->size; ++i) {
 		if ( i == v->owner ) {
@@ -101,8 +102,8 @@ void PrintVtimer(vtimer* v) {
 		}
 	}
 	printf("]\n");
+	*/
 }
-*/
 int GetOwnerVtime(vtimer* v) {
 	//return(v->timer[v->owner]);
 	return(v->timer);

@@ -66,8 +66,13 @@ int QueuePush(queue* q, node* n) {
 }
 
 int QueuePushBeforeOwner(queue* q, node* n) {
-	if( q->owner_node == NULL ) {
+	if( (q->owner_node == NULL) || (q->first == NULL)) {
 		QueuePush(q,n);
+	}
+	else if (q->first == q->owner_node) {
+		q->first = n;
+		q->owner_node->previous = n;
+		n->next = q->owner_node;
 	}
 	else {
 		n->next = q->owner_node;
@@ -79,16 +84,21 @@ int QueuePushBeforeOwner(queue* q, node* n) {
 }
 
 int QueueDeleteIndex(queue* q, int legion_id) {
+	if(q->first == NULL) {
+		return -1;
+	}
 	node* n = q->first;
 	while( (n->next != NULL) && (n->legion->id != legion_id) ) {
 		n = n->next;
 	}
-	if ( n->legion->id != legion_id ) {
-		return 1;
+	if ( (n->next == NULL) && (n->legion->id != legion_id) ) {
+		return -1;
 	}
 	if ( n->legion->id == q->owner_id) {
 		q->owner_node = NULL;
 	}
+	
+
 	if ( (n->previous != NULL) && (n->next != NULL) ) {
 		n->previous->next = n->next;
 		n->next->previous = n->previous;
@@ -147,6 +157,16 @@ void PrintQueue(queue* q) {
 		n = n->next;
 	}
 	printf("\n");
+}
+
+int QueueCard(queue* q) {
+	node* n = q->first;
+	int card = 0;
+	while( n != NULL ) {
+		++card;
+		n = n->next;
+	}
+	return card;
 }
 
 void QueueToArray(queue* q, int* array) {

@@ -9,8 +9,9 @@
 
 char debug_message[1024];
 
-int main(int argc, char* argv[]) {
+FILE *file; 
 
+int main(int argc, char* argv[]) {
 	int c;
     char *lopt = NULL, *ropt = NULL, *copt = NULL;
     while ( (c = getopt(argc, argv, "l:r:c:")) != -1) {
@@ -115,11 +116,15 @@ int main(int argc, char* argv[]) {
 	printf("That's it\n\n");
 	*/
 	while( 1 ){
+		
 		char d_msg[1024];
 		//int queue[1024];
 		if(pvm_nrecv(-1, DBG)) {
+			file = fopen("log","a+");
 			pvm_upkstr(d_msg);
 			printf("%s", d_msg);
+			fprintf(file,"%s",d_msg); 
+			fclose(file); 
 		}
 		/*if(pvm_nrecv(-1, QUEUE)) {
 			pvm_upkint(queue, 1024, 1);

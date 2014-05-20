@@ -8,8 +8,8 @@
 #include "../common/message.h"
 
 #define SLAVENAME "slave"
-#define LEGION_NUM	4
-#define ROUTE_NUM	2
+#define LEGION_NUM	8
+#define ROUTE_NUM	5
 #define LEGION_MAX_CARD 10
 
 extern char debug_message[1024];

@@ -35,4 +35,5 @@ void PrintNode(node* n);
 void PrintQueue(queue* q);
 int PredecessorsCard(queue* q);
 void QueueToArray(queue* q, int* array);
+int QueueCard(queue* q);
 #endif
