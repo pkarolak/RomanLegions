@@ -15,17 +15,21 @@ int MyTid;
 queue** ResourceQueue;
 int* RoutesCapacity;
 int* tids;
+int WaitingForResource = 0;
+int ScalarTimer = 0;
+int Timestamp = 0;
 
 int CriticalSection() {
-	SendComunicate(MasterId, "\t\t\t\t>%d entered CS on route %d\n", MyNum, RequestedResourceId);
+	WaitingForResource = 0;
+	SendComunicate(MasterId, "%d\t\t\t\t>%d entered CS on route %d\n", GetOwnerVtime(MyTimer), MyNum, RequestedResourceId);
 	message msg;
 	double tstart, cs;
 	cs = 0;
 	tstart = (double)clock()/CLOCKS_PER_SEC;
-	while(cs < 3) {
+	while(cs < 1) {
 		if(NonBlockingReceiveMessage(&msg, REQUEST)) {
-			IncrementVtimer(MyTimer);
 			SynchronizeVtimers(MyTimer, &(msg.timer));
+			IncrementVtimer(MyTimer);
 			QueuePush(ResourceQueue[msg.resource_id], Node(Pair(msg.legion_card, msg.sender_id)));
 			IncrementVtimer(MyTimer);
 			message* respond = Message(MyNum, MyCard, *MyTimer, msg.resource_id);
@@ -33,17 +37,18 @@ int CriticalSection() {
 			FreeMessage(respond);
 		}
 		if(NonBlockingReceiveMessage(&msg, FREE)) {
+			SynchronizeVtimers(MyTimer, &(msg.timer));
 			IncrementVtimer(MyTimer);
 			QueueDeleteIndex(ResourceQueue[msg.resource_id], msg.sender_id);
 		}
 		cs = (double)clock()/CLOCKS_PER_SEC - tstart;
 	}
-	SendComunicate(MasterId, "\t\t\t\t<%d left CS on route %d\n", MyNum, RequestedResourceId);
 	FreeResource(RequestedResourceId);
 	return 0;
 }
 
 int ResourceRequest(int ResourceId) {
+	WaitingForResource = 1;
 	//SendComunicate(MasterId, "Legion %d will send resource request on Route %d\n", MyNum, ResourceId);
 	for(int i = 0 ; i < nproc ; ++i) {
 		NonConfirmedRequest[i] = 1;
@@ -52,6 +57,7 @@ int ResourceRequest(int ResourceId) {
 	QueuePush(ResourceQueue[ResourceId], Node(Pair(MyCard, MyNum)));
 	RequestedResourceId = ResourceId;
 	IncrementVtimer(MyTimer);
+	Timestamp = GetOwnerVtime(MyTimer);
 	message* msg = Message(MyNum, MyCard, *MyTimer, ResourceId);
 	for(int i = 0 ; i < nproc ; ++i) {
 		if(i != MyNum) {
@@ -64,8 +70,8 @@ int ResourceRequest(int ResourceId) {
 }
 
 int FreeResource(int ResourceId) {
+	WaitingForResource = 0;
 	//SendComunicate(MasterId, "Legion %d will release Route %d\n", MyNum, ResourceId);
-	RequestedResourceId = -1;
 	ToConfirm = -1;
 	QueueDeleteIndex(ResourceQueue[ResourceId], MyNum);
 	IncrementVtimer(MyTimer);
@@ -76,6 +82,8 @@ int FreeResource(int ResourceId) {
 		}
 	}
 	FreeMessage(msg);
+	SendComunicate(MasterId, "%d\t\t\t\t<%d left CS on route %d\n", GetOwnerVtime(MyTimer),MyNum, RequestedResourceId);
+	RequestedResourceId = -1;
 	//SendComunicate(MasterId, "\t\t\t>Legion %d has realeased Route %d\n", MyNum, ResourceId);
 	return 0;
 }
@@ -84,16 +92,16 @@ int ReceiveMessageRoutines() {
 	message msg;
 	if(NonBlockingReceiveMessage(&msg, REQUEST)) {
 		//SendComunicate(MasterId, "\t\t>Legion %d received REQUEST from %d on resource %d\n", MyNum, msg.sender_id, msg.resource_id);
+		SynchronizeVtimers(MyTimer, &(msg.timer));
 		IncrementVtimer(MyTimer);
-		if ( (msg.resource_id == RequestedResourceId) && ( NonConfirmedRequest[msg.sender_id] == 1 ) ) {
-			int cmp = CompareVtimers(&(msg.timer), MyTimer);
-			if( (cmp == -1) || ((cmp == 0) && (msg.sender_id < MyNum)) ) {
+		if ( (WaitingForResource == 1) && (msg.resource_id == RequestedResourceId) && ( NonConfirmedRequest[msg.sender_id] == 1 ) ) {
+			if( (Timestamp > GetOwnerVtime(&(msg.timer))) || ((Timestamp == GetOwnerVtime(&(msg.timer))) && (msg.sender_id < MyNum)) ) {
 				QueuePushBeforeOwner(ResourceQueue[msg.resource_id], Node(Pair(msg.legion_card, msg.sender_id)));
-				SendComunicate(MasterId, "\t\t<Legion %d let %d go before on route %d\n", MyNum, msg.sender_id, msg.resource_id);
+				SendComunicate(MasterId, "%d\t\t<Legion %d let %d go before on route %d\n",GetOwnerVtime(MyTimer), MyNum, msg.sender_id, msg.resource_id);
 			}
 			else {
 				QueuePush(ResourceQueue[msg.resource_id], Node(Pair(msg.legion_card, msg.sender_id)));
-				SendComunicate(MasterId, "\t\t<Legion %d has won conflict with %d on route %d\n", MyNum, msg.sender_id, msg.resource_id);
+				SendComunicate(MasterId, "%d\t\t<Legion %d has won conflict with %d on route %d\n",GetOwnerVtime(MyTimer), MyNum, msg.sender_id, msg.resource_id);
 			}
 			QueuePush(ResourceQueue[msg.resource_id], Node(Pair(msg.legion_card, msg.sender_id)));
 			NonConfirmedRequest[msg.sender_id] = 0;
@@ -103,28 +111,31 @@ int ReceiveMessageRoutines() {
 			}
 		}
 		else {
+			SynchronizeVtimers(MyTimer, &(msg.timer));
 			IncrementVtimer(MyTimer);
 			QueuePush(ResourceQueue[msg.resource_id], Node(Pair(msg.legion_card, msg.sender_id)));
 			message* respond = Message(MyNum, MyCard, *MyTimer, msg.resource_id);
 			SendMessage(tids[msg.sender_id], respond, ACK);
 			FreeMessage(respond);
+			SendComunicate(MasterId, "%d\t\t<Legion %d respodned %d on route %d with simple ACK\n",GetOwnerVtime(MyTimer), MyNum, msg.sender_id, msg.resource_id);
 		}
-		SynchronizeVtimers(MyTimer, &(msg.timer));
 	}
 	if(NonBlockingReceiveMessage(&msg, FREE)) {
-		//SendComunicate(MasterId, "\t\t>Legion %d received FREE from %d on resource %d\n", MyNum, msg.sender_id, msg.resource_id);
+		SynchronizeVtimers(MyTimer, &(msg.timer));
 		IncrementVtimer(MyTimer);
+		SendComunicate(MasterId, "%d\t\t>Legion %d received FREE from %d on resource %d\n", GetOwnerVtime(MyTimer), MyNum, msg.sender_id, msg.resource_id);
 		QueueDeleteIndex(ResourceQueue[msg.resource_id], msg.sender_id);
 		if(msg.resource_id == RequestedResourceId) {
 			//SendComunicate(MasterId, "\t\t#Legion %d is recalculating entrance on Route %d\n", MyNum, msg.resource_id);	
-			if( (PredecessorsCard(ResourceQueue[RequestedResourceId]) + MyCard) <= RoutesCapacity[RequestedResourceId] ) {			
+			if( (ToConfirm == 1) && ((PredecessorsCard(ResourceQueue[RequestedResourceId]) + MyCard) <= RoutesCapacity[RequestedResourceId] )) {			
 				CriticalSection();
 			}	
 		}
 	}
 	if(NonBlockingReceiveMessage(&msg, ACK)) {
-		SendComunicate(MasterId, "\t\t>Legion %d received ACK from %d on resource %d\n", MyNum, msg.sender_id, msg.resource_id);
+		SynchronizeVtimers(MyTimer, &(msg.timer));
 		IncrementVtimer(MyTimer);
+		SendComunicate(MasterId, "%d\t\t>Legion %d received ACK from %d on resource %d\n",GetOwnerVtime(MyTimer), MyNum, msg.sender_id, msg.resource_id);
 		--ToConfirm;
 		if( (ToConfirm == 1) && ((PredecessorsCard(ResourceQueue[RequestedResourceId]) + MyCard) <= RoutesCapacity[RequestedResourceId]) ) {			
 			CriticalSection();
@@ -153,13 +164,12 @@ int main() {
 	for(int i = 0; i < RouteNum ; ++i) {
 		ResourceQueue[i] = Queue(MyNum);
 	}
-	//IncrementVtimer(my_timer);
-	
+	/*
 	pvm_initsend(PvmDataDefault);
 	pvm_pkint(&MyNum, 1, 1 );
 	pvm_pkint(&MyTid, 1, 1);
 	pvm_send(MasterId, SLAVE);
-
+	*/
 	srand(time(NULL));
 	int resource_id = rand()%RouteNum;
 	for( int i = 0 ; i < MyNum ; ++i ) {
@@ -173,10 +183,9 @@ int main() {
 		int enter = rand()%2;
 		if((RequestedResourceId == -1) && enter) {
 			ResourceRequest(rand()%RouteNum);
-			SendComunicate(MasterId, "%d wants to enter CS on route %d\n", MyNum, RequestedResourceId);
+			SendComunicate(MasterId, "%d :: %d wants to enter CS on route %d\n",GetOwnerVtime(MyTimer), MyNum, RequestedResourceId);
 		}
 		ReceiveMessageRoutines();
-		IncrementVtimer(MyTimer);
 	}
 
 	for (int i = 0; i < RouteNum; ++i) {

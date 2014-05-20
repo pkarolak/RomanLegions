@@ -37,6 +37,6 @@ int NonBlockingReceiveMessage(message* m, msg_type in_type) {
 }
 
 void PrintMessage(message* m) {
-	printf("Sender: %d, Card: %d, Resource: %d\n", m->sender_id, m->legion_card, m->resource_id);
-	PrintVtimer(&(m->timer));
+//	printf("Sender: %d, Card: %d, Resource: %d\n", m->sender_id, m->legion_card, m->resource_id);
+//	PrintVtimer(&(m->timer));
 }

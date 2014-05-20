@@ -7,7 +7,7 @@
 typedef struct vtimer {
 	int size;
 	int owner;
-	int timer[MAX_TIMER_SIZE];
+	int timer; //[MAX_TIMER_SIZE];
 } vtimer;
 
 vtimer* Vtimer(int in_size, int in_owner);
@@ -17,5 +17,7 @@ int IncrementVtimer(vtimer* v);
 int SynchronizeVtimers(vtimer* local, vtimer* remote);
 void PrintVtimer(vtimer* v);
 int max(int a, int b);
+int GetOwnerVtime(vtimer* v);
+
 
 #endif

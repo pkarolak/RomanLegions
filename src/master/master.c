@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 		pvm_send(tids[i], MASTER);	// receiver tid
 	}
 
-	int who;
+	/*int who;
 	int num;
 	for( i = 0 ; i < nproc ; ++i ) {
 		pvm_recv( -1, SLAVE );
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 		printf("\nrcv: %d\n", i);
 		printf("%d: %d\n",who, num);
 	}
-
+	*/
 	/*
 	printf("\ncore rvc\n");
 
