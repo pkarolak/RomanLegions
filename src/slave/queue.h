@@ -2,6 +2,7 @@
 #ifndef _QUEUE_H_
 #define _QUEUE_H_
 
+
 typedef struct pair {
 	int id;
 	int card; 
@@ -33,5 +34,5 @@ int QueueDeleteNode(queue* q, node* n);
 void PrintNode(node* n);
 void PrintQueue(queue* q);
 int PredecessorsCard(queue* q);
-
+void QueueToArray(queue* q, int* array);
 #endif

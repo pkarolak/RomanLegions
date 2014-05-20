@@ -46,16 +46,16 @@ int main(int argc, char* argv[]) {
 
 	int mytid;
 	int tids[legion_num];	
-	int nproc, i, who;
+	int nproc, i;
 
 	mytid = pvm_mytid();
 
 	nproc = pvm_spawn(SLAVENAME, NULL, PvmTaskDefault, "", legion_num, tids);
-
+	/*
 	for( i = 0 ; i < nproc ; ++i ) {
 		printf("%d\n", tids[i]);
 	}
-
+	*/
 	srand(time(NULL));
 
 	printf("\nLegions card:\n");	
@@ -71,6 +71,13 @@ int main(int argc, char* argv[]) {
 		route_capacity[i] = 2*(rand()%legion_max_card) + legion_max_card;
 		printf("%d, ", route_capacity[i]);
 	}
+	printf("\n");
+
+	printf("\nTids:\n");
+	for( i = 0 ; i < nproc; ++i) {
+		printf("%d, ", tids[i]);
+	}
+	printf("\n");
 
 	for( i = 0 ; i < nproc ; ++i ) {
 		pvm_initsend(PvmDataDefault);
@@ -85,6 +92,7 @@ int main(int argc, char* argv[]) {
 		pvm_send(tids[i], MASTER);	// receiver tid
 	}
 
+	int who;
 	int num;
 	for( i = 0 ; i < nproc ; ++i ) {
 		pvm_recv( -1, SLAVE );
@@ -94,15 +102,30 @@ int main(int argc, char* argv[]) {
 		printf("%d: %d\n",who, num);
 	}
 
+	/*
 	printf("\ncore rvc\n");
 
 	for( i = 0 ; i < nproc ; ++i ) {
 		message* core = calloc(1, sizeof(message));
-		RecieveMessage(core, COMMUNICATE);
+		ReceiveMessage(core, COMMUNICATE);
 		PrintMessage(core);
-		//printf("Sender: %d, Card: %d, Resource: %d\n", core->sender_id, core->legion_card, core->resource_id);
-		//printf("%d\n", core->timer);
 		free(core);
+	}
+
+	printf("That's it\n\n");
+	*/
+	while( 1 ){
+		char d_msg[1024];
+		//int queue[1024];
+		if(pvm_nrecv(-1, DBG)) {
+			pvm_upkstr(d_msg);
+			printf("%s", d_msg);
+		}
+		/*if(pvm_nrecv(-1, QUEUE)) {
+			pvm_upkint(queue, 1024, 1);
+			pvm_upkstr(d_msg);
+			printf("%s", d_msg);	
+		}*/
 	}
 	pvm_exit();
 	return 0;

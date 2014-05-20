@@ -19,6 +19,16 @@ int FreeVtimer(vtimer* v) {
 }
 
 int CompareVtimers(vtimer* first, vtimer* second) {
+	if(first->timer[first->owner] == second->timer[second->owner]) {
+		return 0; // f == s
+	}
+	if(first->timer[first->owner] > second->timer[second->owner]) {
+		return 1; // f > s
+	}
+	if(first->timer[first->owner] < second->timer[second->owner]) {
+		return -1; // f < s
+	}
+	return -2; /*
 	if( first->size != second->size ) {
 		return -2;
 	}
@@ -30,7 +40,7 @@ int CompareVtimers(vtimer* first, vtimer* second) {
 		}
 	}
 	if(carry_on == 1) {
-		return 0;
+		return 0; // f == s
 	}
 	carry_on = 1;
 	for(int i = 0 ; (i < first->size) && (carry_on == 1); ++i) {
@@ -40,7 +50,7 @@ int CompareVtimers(vtimer* first, vtimer* second) {
 		}
 	}
 	if(carry_on == 1) {
-		return 1;
+		return 1; // f > s
 	}
 	carry_on = 1;
 	for(int i = 0 ; (i < first->size) && (carry_on == 1); ++i) {
@@ -50,9 +60,10 @@ int CompareVtimers(vtimer* first, vtimer* second) {
 		}
 	}
 	if(carry_on == 1) {
-		return -1;
+		return -1; // f < s
 	}
 	return -2;
+	*/
 }
 
 

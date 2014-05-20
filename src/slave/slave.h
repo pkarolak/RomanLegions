@@ -8,5 +8,10 @@
 #include "../common/message.h"
 #include "../common/vtime.h"
 
+int CriticalSection();
+int ResourceRequest(int ResourceId);
+int FreeResource(int ResourceId);
+int ReceiveMessageRoutines();
+
 
 #endif

@@ -138,6 +138,7 @@ void PrintNode(node* n) {
 	printf("#node <Id: %d, Card: %d>\n", n->legion->id, n->legion->card);
 }
 
+
 void PrintQueue(queue* q) {
 	node* n = q->first;
 	printf("\n");
@@ -146,6 +147,17 @@ void PrintQueue(queue* q) {
 		n = n->next;
 	}
 	printf("\n");
+}
+
+void QueueToArray(queue* q, int* array) {
+	node* n = q->first;
+	int i = 1;
+	while( n != NULL ) {
+		array[i] = n->legion->id;
+		n = n->next;
+		++i;
+	}
+	array[0] = i-1; 
 }
 
 int PredecessorsCard(queue* q) {

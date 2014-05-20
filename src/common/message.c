@@ -22,13 +22,13 @@ int SendMessage(int in_reciever, message* in_message, msg_type in_type) {
 	return pvm_send(in_reciever, in_type);
 }
 
-int RecieveMessage(message* m, msg_type in_type) {
+int ReceiveMessage(message* m, msg_type in_type) {
 	int stat = pvm_recv(-1, in_type);
 	pvm_upkbyte((char*)m, sizeof(message), 1);
 	return stat;
 }
 
-int NonBlockingRecieveMessage(message* m, msg_type in_type) {
+int NonBlockingReceiveMessage(message* m, msg_type in_type) {
 	int stat = pvm_nrecv(-1, in_type);
 	if( stat ) {
 		pvm_upkbyte((char*)m, sizeof(message), 1);
