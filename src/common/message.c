@@ -2,12 +2,13 @@
 #include "message.h"
 
 
-message* Message(int in_sender, int in_card, vtimer in_timer, int in_res) {
+message* Message(int in_sender, int in_card, vtimer in_timer, int in_res, msg_type in_type) {
 	message* m = calloc(1, sizeof(message));
 	m->sender_id = in_sender;
 	m->legion_card = in_card;
 	m->timer = in_timer;
 	m->resource_id = in_res;
+	m->type = in_type;
 	return m;
 }
 
