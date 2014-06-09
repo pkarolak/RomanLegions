@@ -24,6 +24,7 @@ int CriticalSection() {
 	tstart = (double)clock()/CLOCKS_PER_SEC;
 	while(cs < 1) {
 		cs = (double)clock()/CLOCKS_PER_SEC - tstart;
+		ReceiveMessageRoutines();
 	}
 	int tmp = RequestedResourceId;
 	SendComunicate(MasterId, "%d\t\t\t\t[CS]<< %d left CS on route %d\n",GetOwnerVtime(MyTimer), MyNum, tmp);	
